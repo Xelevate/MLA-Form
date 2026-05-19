@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MLA Transfer · Intake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1115;
+    --ink-2: #1a1d24;
+    --paper: #f5f1ea;
+    --paper-2: #ebe6dd;
+    --line: #d4cdbf;
+    --accent: #ff5e3a;
+    --accent-2: #ffb84d;
+    --good: #2f7a4e;
+    --good-bg: #e6f2ea;
+    --bad: #b3261e;
+    --bad-bg: #fbe9e7;
+    --warn: #8a6300;
+    --warn-bg: #fdf4d8;
+    --muted: #6b6558;
+    --radius: 4px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Geist", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(255, 94, 58, 0.06), transparent 40%),
+      radial-gradient(circle at 80% 100%, rgba(255, 184, 77, 0.06), transparent 40%);
+  }
+  /* grain overlay */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 28px 80px; position: relative; z-index: 2; }
+
+  /* header */
+  header {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+  .brand {
+    font-family: "Fraunces", serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .brand em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .sub {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .meta {
+    text-align: right;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .meta strong { color: var(--ink); font-weight: 600; }
+
+  /* layout */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+
+  /* card */
+  .card {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 22px 20px;
+    position: relative;
+  }
+  .card h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .card h2 .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .card .desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  .card.live { border-color: var(--ink); box-shadow: 6px 6px 0 0 var(--ink); }
+
+  /* textarea */
+  textarea {
+    width: 100%;
+    min-height: 360px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    background: #fffdf8;
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13.5px;
+    line-height: 1.55;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  textarea:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(255,94,58,0.15); }
+
+  /* controls */
+  .controls { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  button {
+    font-family: "Geist", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
+  .btn-primary:disabled {
+    background: #c5c1b6; border-color: #c5c1b6; cursor: not-allowed; color: #fffdf8;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  .btn-ghost:hover { background: #fffdf8; border-color: var(--ink); }
+
+  /* parsed list */
+  .parsed { display: flex; flex-direction: column; gap: 0; }
+  .row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13.5px;
+  }
+  .row:last-child { border-bottom: none; }
+  .row .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .row .value {
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .row .value.missing { color: #b3261e; font-style: italic; font-weight: 400; }
+  .row input.edit {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    padding: 4px 6px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+  .row input.edit:hover { background: #fffdf8; border-color: var(--line); }
+  .row input.edit:focus { background: #fffdf8; border-color: var(--ink); outline: none; }
+
+  /* status box */
+  .checks { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+  .check {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    font-size: 13.5px;
+    border: 1px solid;
+  }
+  .check.idle { background: #f0ebe2; border-color: var(--line); color: var(--muted); }
+  .check.good { background: var(--good-bg); border-color: #c1dccc; color: var(--good); }
+  .check.bad  { background: var(--bad-bg); border-color: #f3c4bf; color: var(--bad); font-weight: 500; }
+  .check.warn { background: var(--warn-bg); border-color: #ecd896; color: var(--warn); }
+  .check .icon {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .check.idle .icon { background: #d4cdbf; color: #fff; }
+  .check.good .icon { background: var(--good); color: #fff; }
+  .check.bad .icon { background: var(--bad); color: #fff; }
+  .check.warn .icon { background: var(--warn); color: #fff; }
+  .check .meta-x { margin-left: auto; font-size: 11px; opacity: 0.7; font-family: "JetBrains Mono", monospace; }
+
+  /* footer / action */
+  .action-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    padding: 18px 22px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--radius);
+    flex-wrap: wrap;
+  }
+  .action-bar .status {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    flex: 1;
+  }
+  .action-bar .status .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); margin-right: 8px; vertical-align: middle;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .action-bar .status.ready .dot { background: #5ad97c; animation: none; }
+  @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .btn-go {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .btn-go:hover:not(:disabled) { background: var(--accent-2); border-color: var(--accent-2); color: var(--ink); }
+  .btn-go:disabled { background: #555; border-color: #555; cursor: not-allowed; opacity: 0.5; }
+
+  /* config strip */
+  .config-strip {
+    margin: 0 0 20px;
+    padding: 10px 14px;
+    background: var(--warn-bg);
+    border: 1px solid #ecd896;
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    color: var(--warn);
+    display: flex; align-items: center; gap: 10px;
+    font-family: "JetBrains Mono", monospace;
+  }
+  .config-strip.ok { display: none; }
+  .config-strip a { color: var(--warn); font-weight: 600; }
+
+  /* footer */
+  footer.fp {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex; justify-content: space-between;
+  }
+  footer.fp a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">MLA Transfer <em>Intake</em></div>
+      <div class="sub">Operator console · v1.0</div>
+    </div>
+    <div class="meta">
+      <div>Center · <strong>XV</strong></div>
+      <div id="clock">—</div>
+    </div>
+  </header>
+
+  <div id="cfg-strip" class="config-strip">
+    <span>⚠</span>
+    <span>Form field IDs not configured. <a href="setup.html">Run setup →</a></span>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: paste box -->
+    <section class="card live">
+      <h2><span class="num">01</span> Paste customer details</h2>
+      <p class="desc">Drop any unstructured customer info here. It parses as you type.</p>
+      <textarea id="raw" placeholder="Paste anything — labeled or not. Example:&#10;&#10;Lisa Lefebvre, daughter, 508-987-5037&#10;phone 217-555-0143&#10;dob 03/14/1948&#10;42 Maple St, Worcester MA 01602&#10;Necklace&#10;mastercard 5555 4444 3333 1111 exp 11/30 cvv 733&#10;billing 28th&#10;first time: yes"></textarea>
+      <div class="controls">
+        <button class="btn-ghost" id="btn-sample">Load sample</button>
+        <button class="btn-ghost" id="btn-clear">Clear</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: parsed + checks -->
+    <section class="card">
+      <h2><span class="num">02</span> Parsed fields</h2>
+      <p class="desc">Click any value to edit. Empty fields will show red.</p>
+      <div class="parsed" id="parsed"></div>
+
+      <div class="checks">
+        <div class="check idle" id="chk-dnc">
+          <span class="icon">·</span>
+          <span class="text">DNC check pending</span>
+          <span class="meta-x" id="chk-dnc-meta"></span>
+        </div>
+        <div class="check idle" id="chk-card">
+          <span class="icon">·</span>
+          <span class="text">Card format check pending</span>
+          <span class="meta-x" id="chk-card-meta"></span>
+        </div>
+        <div class="check idle" id="chk-complete">
+          <span class="icon">·</span>
+          <span class="text">Required fields pending</span>
+          <span class="meta-x" id="chk-complete-meta"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="action-bar">
+    <div class="status" id="status-line"><span class="dot"></span>Awaiting input</div>
+    <button class="btn-ghost" id="btn-copy" style="background:#2a2d34;color:#fff;border-color:#3a3d44">Copy summary</button>
+    <button class="btn-go" id="btn-open" disabled>Open pre-filled form →</button>
+  </div>
+
+  <footer class="fp">
+    <span>All processing happens in your browser. Nothing is sent anywhere except the DNC lookup.</span>
+    <a href="setup.html">Setup</a>
+  </footer>
+</div>
+
+<script src="config.js?v=2"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>
