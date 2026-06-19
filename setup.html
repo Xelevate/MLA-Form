@@ -339,7 +339,6 @@ function keyForLabel(label) {
 
 function parseFBData(text) {
   // Try parsing as the bookmarklet JSON array first
-  let arr = null;
   try {
     const j = JSON.parse(text);
     if (Array.isArray(j) && j.length && j[0].entryId) {
@@ -347,23 +346,65 @@ function parseFBData(text) {
     }
   } catch(e) {}
 
-  // Otherwise: assume it's FB_PUBLIC_LOAD_DATA_ paste
-  let payload = text.trim();
-  // strip leading "var FB_PUBLIC_LOAD_DATA_ = "
-  const m = payload.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*(\[[\s\S]+\])\s*;?\s*$/);
-  if (m) payload = m[1];
-  // try parsing
+  // Decode common HTML entities (if copied from rendered view-source)
+  let src = text
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"')
+    .replace(/&#x22;/gi, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#39;/g, "'");
+
+  // Find FB_PUBLIC_LOAD_DATA_ assignment
+  const startMatch = src.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*\[/);
+  if (!startMatch) {
+    alert('Could not find FB_PUBLIC_LOAD_DATA_ in the pasted text.\n\nMake sure you copied either:\n• the JSON from the bookmarklet, or\n• the FB_PUBLIC_LOAD_DATA_ line from view-source');
+    return [];
+  }
+
+  // Position of opening [
+  const start = startMatch.index + startMatch[0].length - 1;
+
+  // Bracket-count forward, respecting strings
+  let depth = 0, inString = false, escape = false, end = -1;
+  for (let i = start; i < src.length; i++) {
+    const c = src[i];
+    if (escape) { escape = false; continue; }
+    if (c === '\\') { escape = true; continue; }
+    if (c === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (c === '[') depth++;
+    else if (c === ']') {
+      depth--;
+      if (depth === 0) { end = i; break; }
+    }
+  }
+
+  if (end === -1) {
+    alert('Could not find the end of FB_PUBLIC_LOAD_DATA_ array.\nDid you copy the whole long line?');
+    return [];
+  }
+
+  const payload = src.substring(start, end + 1);
   let data;
   try { data = JSON.parse(payload); }
   catch(e) {
-    alert('Could not parse. Make sure you copied either:\n• the JSON from the bookmarklet, or\n• the whole FB_PUBLIC_LOAD_DATA_ line from view-source');
+    alert('JSON parse error: ' + e.message + '\n\nFirst 200 chars:\n' + payload.slice(0, 200));
     return [];
   }
-  const fields = data && data[1] && data[1][1];
+
+  // Fields are typically at data[1][1]
+  let fields = null;
+  if (data && data[1]) {
+    if (Array.isArray(data[1][1])) fields = data[1][1];
+    else if (Array.isArray(data[1][8])) fields = data[1][8];
+  }
   if (!Array.isArray(fields)) {
-    alert('Unexpected data shape — could not find fields.');
+    alert('Unexpected data shape — could not locate fields array.');
     return [];
   }
+
   const out = [];
   fields.forEach(f => {
     if (!Array.isArray(f) || f.length < 5) return;
