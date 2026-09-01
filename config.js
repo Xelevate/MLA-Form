@@ -35,5 +35,30 @@ const FORM_CONFIG = {
 // Leave empty until you extract that form's Google Forms entry IDs.
 const MEDGUARD_CONFIG = {
   entries: {
+    accountNumber: 'entry.429957234',
+    additionalNotes: 'entry.1915126134',
+    address: 'entry.307922716',
+    bankName: 'entry.1729558826',
+    billingDate: 'entry.1570872495',
+    cardNumber: 'entry.176991126',
+    cvv: 'entry.516009227',
+    dealerId: 'entry.1254613390',
+    device: 'entry.417896633',
+    devicePrice: 'entry.824793916',
+    dob: 'entry.956407094',
+    emergName: 'entry.827006196',
+    emergPhone: 'entry.996397088',
+    emergRel: 'entry.1883984747',
+    expDate: 'entry.351532007',
+    firstName: 'entry.466280657',
+    lastName: 'entry.606099816',
+    paymentType: 'entry.171638466',
+    phone: 'entry.1535308453',
+    routingNumber: 'entry.968654129',
+    sameDayCharge: 'entry.722791621',
+    state: 'entry.2011946309',
+    zip: 'entry.1098541606'
+  }
+};
   }
 };
